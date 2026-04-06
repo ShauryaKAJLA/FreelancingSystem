@@ -34,5 +34,6 @@ CREATE TABLE Collaboration (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
 
+    
     CHECK (review_date IS NULL OR review_date <= CURRENT_DATE)
 );
