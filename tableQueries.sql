@@ -9,8 +9,7 @@ CREATE TABLE Milestones (
     
     amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
     
-    status VARCHAR(20) NOT NULL 
-        CHECK (status IN ('Pending', 'Completed')),
+    status ENUM('Pending', 'Completed') NOT NULL DEFAULT 'Pending',
     
     due_date DATE NOT NULL,
     
@@ -20,6 +19,12 @@ CREATE TABLE Milestones (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
+INDEX idx_contract_id (contract_id),
+    INDEX idx_status (status),
+    INDEX idx_due_date (due_date)
+);
+
+
 
 Payments table:
 
@@ -32,8 +37,7 @@ CREATE TABLE Payments (
     
     payment_date DATE NOT NULL,
     
-    payment_status VARCHAR(20) NOT NULL 
-        CHECK (payment_status IN ('Paid', 'Pending', 'Failed')),
+    payment_status ENUM('Paid', 'Pending', 'Failed') NOT NULL DEFAULT 'Pending',
     
     CONSTRAINT fk_payment_milestone
     FOREIGN KEY (milestone_id) 
@@ -41,8 +45,10 @@ CREATE TABLE Payments (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 );
-
-
+INDEX idx_milestone_id (milestone_id),
+    INDEX idx_payment_status (payment_status),
+    INDEX idx_payment_date (payment_date)
+);
 
 
 
