@@ -118,7 +118,7 @@ CREATE TABLE job_posts(
     CONSTRAINT unique_bid UNIQUE (job_id, freelancer_id) 
 ); 
 
-
+--Contracts table
 CREATE TABLE Contracts ( 
     contract_id INT PRIMARY KEY AUTO_INCREMENT, 
     job_id INT NOT NULL, 
@@ -149,6 +149,54 @@ start_date),
      
     CONSTRAINT unique_active_contract UNIQUE (job_id, freelancer_id) 
 );  
+
+--milestone table
+CREATE TABLE Milestones (
+    milestone_id INT PRIMARY KEY,
+    
+    contract_id INT NOT NULL,
+    
+    title VARCHAR(100) NOT NULL,
+    
+    amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
+    
+    status ENUM('Pending', 'Completed') NOT NULL DEFAULT 'Pending',
+    
+    due_date DATE NOT NULL,
+    
+    CONSTRAINT fk_milestone_contract
+    FOREIGN KEY (contract_id) 
+    REFERENCES Contracts(contract_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+INDEX idx_contract_id (contract_id),
+    INDEX idx_status (status),
+    INDEX idx_due_date (due_date)
+);
+
+
+
+-- Payments table
+
+CREATE TABLE Payments (
+    payment_id INT PRIMARY KEY,
+    
+    milestone_id INT NOT NULL,
+    
+    amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
+    
+    payment_date DATE NOT NULL,
+    
+    payment_status ENUM('Paid', 'Pending', 'Failed') NOT NULL DEFAULT 'Pending',
+    
+    CONSTRAINT fk_payment_milestone
+    FOREIGN KEY (milestone_id) 
+    REFERENCES Milestones(milestone_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
   
   --Admin_Action
   CREATE TABLE admin_actions (
