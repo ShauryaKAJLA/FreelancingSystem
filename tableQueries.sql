@@ -7,6 +7,7 @@ USE FreelancePlatform ;
 -- Table: Users
 CREATE TABLE Users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
+    full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     contact_number VARCHAR(15) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -14,7 +15,7 @@ CREATE TABLE Users (
 
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
+    CHECK (full_name REGEXP '^[A-Za-z .&-]+$'),
     CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     CHECK (contact_number REGEXP '^[+]?[0-9]{10,15}$')
 );
@@ -46,7 +47,6 @@ CREATE TABLE Freelancers (
     freelancer_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL UNIQUE,
 
-    full_name VARCHAR(255) NOT NULL,
     hourly_rate DECIMAL(10, 2) NOT NULL,
     total_earned DECIMAL(10, 2) DEFAULT 0,
 
@@ -55,7 +55,7 @@ CREATE TABLE Freelancers (
 
     CHECK (hourly_rate > 0),
     CHECK (total_earned >= 0),
-    CHECK (full_name REGEXP '^[A-Za-z .&-]+$'),
+    
 
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
         ON DELETE CASCADE ON UPDATE CASCADE
@@ -90,7 +90,7 @@ CREATE TABLE Jobs(
     client_id INT NOT NULL,
     title VARCHAR(150) NOT NULL,
     description TEXT,
-    budget DECIMAL(10, 2) NOT NULL,
+    budget DECIMAL(10, 2) NOT NULL  CHECK(budget>=0),
     status ENUM('Open', 'In Progress', 'Complete') NOT NULL DEFAULT 'Open',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -155,7 +155,7 @@ start_date),
 
 -- milestone table
 CREATE TABLE Milestones (
-    milestone_id INT PRIMARY KEY,
+    milestone_id int PRIMARY KEY auto_increment,
     
     contract_id INT NOT NULL,
     
@@ -182,7 +182,7 @@ CREATE TABLE Milestones (
 CREATE TABLE Payments (
     payment_id INT PRIMARY KEY,
     
-    milestone_id INT NOT NULL,
+    milestone_id int NOT NULL,
     
     amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
     
@@ -267,4 +267,13 @@ CREATE TABLE Collaboration (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
+);
+
+--JobSkills
+create table JobSkills(
+    job_id INT,
+    skill_id INT,
+    PRIMARY KEY (job_id, skill_id),
+    FOREIGN KEY (job_id) REFERENCES Jobs(job_id),
+    FOREIGN KEY (skill_id) REFERENCES Skills(skill_id)
 );
