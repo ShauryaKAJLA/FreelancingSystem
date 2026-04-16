@@ -7,6 +7,7 @@ USE FreelancePlatform ;
 -- Table: Users
 CREATE TABLE Users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
+    full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     contact_number VARCHAR(15) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -46,7 +47,6 @@ CREATE TABLE Freelancers (
     freelancer_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL UNIQUE,
 
-    full_name VARCHAR(255) NOT NULL,
     hourly_rate DECIMAL(10, 2) NOT NULL,
     total_earned DECIMAL(10, 2) DEFAULT 0,
 
@@ -155,7 +155,7 @@ start_date),
 
 -- milestone table
 CREATE TABLE Milestones (
-    milestone_id INT PRIMARY KEY,
+    milestone_id INT PRIMARY KEY AUTO_INCREMENT,
     
     contract_id INT NOT NULL,
     
