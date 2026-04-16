@@ -15,7 +15,7 @@ CREATE TABLE Users (
 
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
+    CHECK (full_name REGEXP '^[A-Za-z .&-]+$'),
     CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     CHECK (contact_number REGEXP '^[+]?[0-9]{10,15}$')
 );
@@ -55,7 +55,7 @@ CREATE TABLE Freelancers (
 
     CHECK (hourly_rate > 0),
     CHECK (total_earned >= 0),
-    CHECK (full_name REGEXP '^[A-Za-z .&-]+$'),
+    
 
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
         ON DELETE CASCADE ON UPDATE CASCADE
@@ -90,7 +90,7 @@ CREATE TABLE Jobs(
     client_id INT NOT NULL,
     title VARCHAR(150) NOT NULL,
     description TEXT,
-    budget DECIMAL(10, 2) NOT NULL,
+    budget DECIMAL(10, 2) NOT NULL  CHECK(budget>=0),
     status ENUM('Open', 'In Progress', 'Complete') NOT NULL DEFAULT 'Open',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -155,7 +155,11 @@ start_date),
 
 -- milestone table
 CREATE TABLE Milestones (
+<<<<<<< HEAD
     milestone_id INT PRIMARY KEY AUTO_INCREMENT,
+=======
+    milestone_id int PRIMARY KEY auto_increment,
+>>>>>>> d070a61a0e486ebedb26847e0ca72d8a226dd978
     
     contract_id INT NOT NULL,
     
@@ -182,7 +186,7 @@ CREATE TABLE Milestones (
 CREATE TABLE Payments (
     payment_id INT PRIMARY KEY,
     
-    milestone_id INT NOT NULL,
+    milestone_id int NOT NULL,
     
     amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
     
@@ -199,22 +203,21 @@ CREATE TABLE Payments (
 -- review table
 
 CREATE TABLE Reviews (
-review_id INT PRIMARY KEY AUTO_INCREMENT,
-job_id INT NOT NULL,
-reviewee_id INT NOT NULL,
-rating INT NOT NULL,
-comment TEXT,
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    job_id INT,
+    reviewer_id INT,
+    reviewee_id INT,
+    rating INT,
+    comment TEXT,
 
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
 FOREIGN KEY (job_id) REFERENCES Jobs(job_id)
 ON DELETE CASCADE,
-
-
-FOREIGN KEY (reviewee_id) REFERENCES Users(user_id)
+FOREIGN KEY (reviewee_id) REFERENCES  users(user_id)
 ON DELETE CASCADE,
-
+FOREIGN KEY (reviewer_id) REFERENCES users(user_id)
+ON DELETE CASCADE,
 CHECK (rating >= 1 AND rating <= 5),
 UNIQUE (job_id, reviewee_id),
 
@@ -268,4 +271,13 @@ CREATE TABLE Collaboration (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 
+);
+
+--JobSkills
+create table JobSkills(
+    job_id INT,
+    skill_id INT,
+    PRIMARY KEY (job_id, skill_id),
+    FOREIGN KEY (job_id) REFERENCES Jobs(job_id),
+    FOREIGN KEY (skill_id) REFERENCES Skills(skill_id)
 );
