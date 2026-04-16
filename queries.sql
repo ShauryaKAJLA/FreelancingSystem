@@ -45,13 +45,22 @@ CREATE VIEW ClientDashboard AS
         c.total_spent,
         avg(r.rating) as avg_rating
         from Reviews as r join Client as c on c.client_id=r.reviewee_id group by c.client_id;
-
-    SELECT * FROM Bids WHERE 
--- Sort bids by:
+--get jobs based on client rating
+select j.job_id ,j.client_id ,j.title ,j.description ,j.budget ,j.status ,c.avg_rating from 
+Jobs as j join ClientDashboard as c on j.client_id=c.client_id where c.avg_rating >= RATING ORDER BY c.avg_rating DESC; 
+  
+  -- Sort bids by:
 -- Lowest price
-
+SELECT * FROM Bids ORDER BY bid_amount ASC;
 -- Highest rating
--- Top 3 bids (greedy selection)
--- → Based on best combination of low pay + high rating
+SELECT  b.bid_id , 
+    b.job_id, 
+    b.freelancer_id, 
+    b.bid_amount ,b.status,f.avg_rating FROM Bids AS b JOIN FreelancerDashboard AS f ON b.freelancer_id=f.freelancer_id ORDER BY f.avg_rating DESC;
+-- Top 3 bids (greedy selection based on best combination of low pay + high rating)
+SELECT  b.bid_id , 
+    b.job_id, 
+    b.freelancer_id, 
+    b.bid_amount ,b.status,f.avg_rating FROM Bids AS b JOIN FreelancerDashboard AS f ON b.freelancer_id=f.freelancer_id ORDER BY (bid_amount/f.avg_rating) ASC LIMIT 3;
 
 
