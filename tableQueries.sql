@@ -199,22 +199,21 @@ CREATE TABLE Payments (
 -- review table
 
 CREATE TABLE Reviews (
-review_id INT PRIMARY KEY AUTO_INCREMENT,
-job_id INT NOT NULL,
-reviewee_id INT NOT NULL,
-rating INT NOT NULL,
-comment TEXT,
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    job_id INT,
+    reviewer_id INT,
+    reviewee_id INT,
+    rating INT,
+    comment TEXT,
 
 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
 FOREIGN KEY (job_id) REFERENCES Jobs(job_id)
 ON DELETE CASCADE,
-
-
-FOREIGN KEY (reviewee_id) REFERENCES Users(user_id)
+FOREIGN KEY (reviewee_id) REFERENCES  users(user_id)
 ON DELETE CASCADE,
-
+FOREIGN KEY (reviewer_id) REFERENCES users(user_id)
+ON DELETE CASCADE,
 CHECK (rating >= 1 AND rating <= 5),
 UNIQUE (job_id, reviewee_id),
 
