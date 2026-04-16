@@ -155,11 +155,7 @@ start_date),
 
 -- milestone table
 CREATE TABLE Milestones (
-<<<<<<< HEAD
     milestone_id INT PRIMARY KEY AUTO_INCREMENT,
-=======
-    milestone_id int PRIMARY KEY auto_increment,
->>>>>>> d070a61a0e486ebedb26847e0ca72d8a226dd978
     
     contract_id INT NOT NULL,
     
@@ -273,7 +269,7 @@ CREATE TABLE Collaboration (
 
 );
 
---JobSkills
+-- JobSkills
 create table JobSkills(
     job_id INT,
     skill_id INT,
