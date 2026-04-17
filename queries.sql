@@ -63,6 +63,102 @@ SELECT  b.bid_id ,
     b.freelancer_id, 
     b.bid_amount ,b.status,f.avg_rating FROM Bids AS b JOIN FreelancerDashboard AS f ON b.freelancer_id=f.freelancer_id ORDER BY (bid_amount/f.avg_rating) ASC LIMIT 3;
 
+--Trigger to create new milestone after the payment status of current milestone is updated to 'paid' and if it was the last milestone then update contract as 'completed' and job as closed.
+DELIMITER $$
+
+CREATE TRIGGER payment_workflow
+AFTER UPDATE ON Payments
+FOR EACH ROW
+BEGIN
+
+    IF NEW.payment_status = 'Paid' 
+       AND OLD.payment_status <> 'Paid' THEN
+
+        -- Check if there exists another milestone for same contract
+        IF EXISTS (
+            SELECT 1
+            FROM Milestones m
+            WHERE m.contract_id = (
+                SELECT contract_id 
+                FROM Milestones 
+                WHERE milestone_id = NEW.milestone_id
+            )
+            AND m.milestone_id <> NEW.milestone_id
+        ) THEN
+
+            -- Create next milestone
+            INSERT INTO Milestones (
+                contract_id,
+                title,
+                amount,
+                status,
+                due_date
+            )
+            SELECT 
+                m.contract_id,
+                CONCAT(m.title, ' - Next'),
+                m.amount,
+                'Pending',
+                DATE_ADD(m.due_date, INTERVAL 7 DAY)
+            FROM Milestones m
+            WHERE m.milestone_id = NEW.milestone_id;
+
+        ELSE
+
+            -- No more milestones → complete contract
+            UPDATE Contracts
+            SET status = 'Completed'
+            WHERE contract_id = (
+                SELECT contract_id 
+                FROM Milestones 
+                WHERE milestone_id = NEW.milestone_id
+            );
+
+            -- Complete job
+            UPDATE Jobs
+            SET status = 'Complete'
+            WHERE job_id = (
+                SELECT job_id 
+                FROM Contracts 
+                WHERE contract_id = (
+                    SELECT contract_id 
+                    FROM Milestones 
+                    WHERE milestone_id = NEW.milestone_id
+                )
+            );
+
+        END IF;
+
+    END IF;
+
+END $$
+
+DELIMITER ;
+
+--a trigger to add payment given by client that is now on the system to get added to freelancers account after client updates milestone as completed.
+DELIMITER $$
+
+CREATE TRIGGER add_payment_to_freelancer
+AFTER UPDATE ON Milestones
+FOR EACH ROW
+BEGIN
+
+    IF NEW.status = 'Completed' 
+       AND OLD.status <> 'Completed' THEN
+
+        UPDATE Freelancers f
+        JOIN Contracts c ON f.freelancer_id = c.freelancer_id
+        JOIN Milestones m ON c.contract_id = m.contract_id
+        JOIN Payments p ON m.milestone_id = p.milestone_id
+        SET f.total_earned = f.total_earned + p.amount
+        WHERE m.milestone_id = NEW.milestone_id
+          AND p.payment_status = 'Paid';
+
+    END IF;
+
+END $$
+
+DELIMITER ;
 
 -- Admin System Overview\
 
