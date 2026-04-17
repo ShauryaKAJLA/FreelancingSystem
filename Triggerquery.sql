@@ -1,4 +1,5 @@
 --trigger to create a new milestone when the payment status of current milestone for freelancer gets updated to 'paid' and if it is last milestone then trigger the status of contract to 'completed' and job to 'closed'.
+
 DELIMITER $$
 
 CREATE TRIGGER payment_workflow
@@ -71,6 +72,7 @@ END $$
 DELIMITER ;
 
 --trigger to add payment given by client that is now on the system to get added to respective freelancer's account after client updates milestone as completed.
+
 DELIMITER $$
 
 CREATE TRIGGER add_payment_to_freelancer
