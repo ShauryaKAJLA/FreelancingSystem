@@ -64,3 +64,41 @@ SELECT  b.bid_id ,
     b.bid_amount ,b.status,f.avg_rating FROM Bids AS b JOIN FreelancerDashboard AS f ON b.freelancer_id=f.freelancer_id ORDER BY (bid_amount/f.avg_rating) ASC LIMIT 3;
 
 
+-- Admin System Overview\
+
+CREATE OR REPLACE VIEW admin_system_overview AS
+WITH revenue_cte AS (
+    SELECT 
+        con.contract_id,
+        SUM(p.amount) AS total_paid
+    FROM Contracts con
+    JOIN Milestones m ON con.contract_id = m.contract_id
+    JOIN Payments p ON m.milestone_id = p.milestone_id
+    WHERE p.payment_status = 'Paid'
+    GROUP BY con.contract_id
+),
+job_stats AS (
+    SELECT 
+        status,
+        COUNT(*) AS total_jobs
+    FROM Jobs
+    GROUP BY status
+),
+user_stats AS (
+    SELECT 
+        role,
+        COUNT(*) AS total_users
+    FROM Users
+    GROUP BY role
+)
+SELECT (SELECT SUM(total_paid) FROM revenue_cte) AS total_platform_revenue,
+    (SELECT COUNT(*) FROM Contracts WHERE status = 'Active') AS active_contracts,
+    (SELECT total_users FROM user_stats WHERE role = 'client') AS total_clients,
+    (SELECT total_users FROM user_stats WHERE role = 'freelancer') AS total_freelancers,
+    (SELECT total_jobs FROM job_stats WHERE status = 'Open') AS open_jobs,
+    (SELECT total_jobs FROM job_stats WHERE status = 'In Progress') AS ongoing_jobs,
+    (SELECT total_jobs FROM job_stats WHERE status = 'Complete') AS completed_jobs;
+
+    -- select query by Admin
+
+    select * from Admin_System_Overview
