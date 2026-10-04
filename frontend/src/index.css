@@ -1,0 +1,10 @@
+@import "tailwindcss";
+/* This app toggles dark mode via a `data-theme="dark"` attribute on <html>
+   (see src/theme/ThemeProvider.jsx), not the OS `prefers-color-scheme` media
+   query that Tailwind v4's `dark:` variant maps to by default. Without this,
+   any `dark:` class (e.g. AppShell.jsx's icon buttons) only responds to the
+   user's OS setting and silently ignores the in-app theme toggle. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@import "./App.css";
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+::selection{background:#d8b4fe;color:#23103f}

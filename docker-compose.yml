@@ -1,0 +1,34 @@
+# Local full stack:  docker compose up --build   (then: docker compose exec api npm run seed  -- only if NODE_ENV != production)
+# NOTE: the api container runs NODE_ENV=production semantics only if you set it; compose defaults to development so seeding works.
+services:
+  mongo:
+    image: mongo:7
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      retries: 5
+  api:
+    build: ./backend
+    depends_on:
+      mongo: { condition: service_healthy }
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/freelanceflow
+      JWT_SECRET: ${JWT_SECRET:-local_dev_secret_local_dev_secret_123456}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-}
+      CLIENT_URL: http://localhost:8080
+    ports: ["5000:5000"]
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:5000/api
+        VITE_RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+    depends_on: [api]
+    ports: ["8080:80"]
+volumes:
+  mongo-data:
