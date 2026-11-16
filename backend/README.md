@@ -6,9 +6,10 @@ Express + MongoDB (Mongoose) API. **Status: Phases 1-2 (foundation, auth, profil
 ```bash
 cp .env.example .env      # set JWT_SECRET; MongoDB must be running
 npm install
-npm run seed              # optional demo accounts (password: Password@123)
+npm run seed              # demo data: 6 clients, 18 freelancers, 31 jobs, and matching proposals
 npm run dev
 ```
+All demo accounts use `Password@123`. Seeding is safe to rerun: existing accounts and records are skipped, only active demo freelancers receive proposals on seeded published jobs, and no admin data is created or modified.
 `GET http://localhost:5000/api/health` -> 200 `{ "success": true, "message": "FreelanceFlow API is running" }`
 
 ## Frontend integration contract (Integration Phase 1)
@@ -40,7 +41,7 @@ curl -X PUT localhost:5000/api/freelancers/<userId>/profile -H "Authorization: B
 ```
 
 ## Design decisions
-- Admin accounts can't self-register (privilege escalation); create them via seed/DB.
+- Admin accounts can't self-register (privilege escalation); create them separately with `npm run create-admin`.
 - Profile ids equal user ids, matching the frontend (`freelancerId: 'u4'`).
 - `rating` is server-controlled and cannot be written via the profile API; body fields are whitelisted.
 - Token holders are re-checked against the DB each request, so flagging a user takes effect immediately.
@@ -164,7 +165,7 @@ flow once with Razorpay test keys before relying on it.
 | GET | `/api/freelancers/:id/jobs/:jobId` | owner Freelancer / Admin |
 | GET / PUT | `/api/clients/:id/profile` | any signed-in user / owner (email only for owner/admin) |
 
-Reseed for Phase 2 data: `npm run seed -- --reset` (dev only). Acceptance: `bash scripts/smoke-phase2.sh`.
+The seed script is safe to rerun: it adds missing demo data, skips existing records, and never creates or deletes admin data. Acceptance: `bash scripts/smoke-phase2.sh`.
 
 ---
 

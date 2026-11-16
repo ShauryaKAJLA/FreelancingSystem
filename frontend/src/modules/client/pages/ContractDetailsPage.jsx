@@ -186,16 +186,16 @@ export default function ContractDetailsPage() {
   async function handleStartContract() {
     const result = await startContract(contractId)
     if (result.data) {
-      notify.success('Contract started.')
-      if (result.data.firstMilestone) await handleFundMilestone(result.data.firstMilestone)
+      // Don't auto-open the payment window here; the client pays via the "Pay ... to platform" button on the milestone.
+      notify.success('Contract started. Use "Pay to platform" on the first milestone when you are ready to fund it.')
     } else notify.error(result.error?.data ?? 'Could not start this contract. Please try again.')
   }
 
   async function handleReleasePayment(milestoneId) {
     const result = await releasePayment(milestoneId)
     if (result.data) {
+      // Don't auto-open the payment window for the next milestone; the client pays via its "Pay ... to platform" button.
       notify.success('Approved — the admin will dispatch the payment to the freelancer.')
-      if (result.data.nextMilestone) await handleFundMilestone(result.data.nextMilestone)
     } else notify.error(result.error?.data ?? 'Could not release this payment. Please try again.')
   }
 

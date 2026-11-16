@@ -86,13 +86,17 @@ async function createOrder(client, milestoneId) {
   const reusable = await Payment.findOne({ milestoneId: milestone._id, clientId: client._id, status: { $in: ['Pending', 'Failed'] }, amount: milestone.amount }).sort({ createdAt: -1 })
   if (reusable) return orderResponse(reusable)
 
+  console.log("RAZORPAY AMOUNT DEBUG:", {
+    milestoneAmount: milestone.amount,
+    amountPaise,
+    amountInRupees: amountPaise / 100,
+  });
   const order = await rzp.createOrder({
     amountPaise,
     receipt: `ms_${milestone._id}`,
     notes: { milestoneId: sid(milestone._id), contractId: sid(contract._id), clientId: sid(client._id) },
   })
   if (!order?.id || order.amount !== amountPaise) throw new ApiError(502, 'Unexpected response from the payment provider')
-
   const payment = await Payment.create({
     milestoneId: milestone._id,
     contractId: contract._id,
@@ -192,7 +196,7 @@ async function handleWebhook(rawBody, signature, eventIdHeader) {
     await processEvent(payload)
   } catch (err) {
     // Release the claim so Razorpay's retry can be processed (we answer 5xx below via the error handler).
-    await WebhookEvent.deleteOne({ eventId }).catch(() => {})
+    await WebhookEvent.deleteOne({ eventId }).catch(() => { })
     throw err
   }
   return { duplicate: false }

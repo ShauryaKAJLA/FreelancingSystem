@@ -26,6 +26,10 @@ Vite bakes `VITE_*` in at build time: changing them means rebuilding the web ima
 5. Razorpay dashboard → Webhooks → URL `https://<api>/api/payments/webhook`, secret = `RAZORPAY_WEBHOOK_SECRET`, events: `payment.captured`, `order.paid`, `payment.failed`, `refund.processed`.
 6. Health: `GET /api/health` (liveness) and `/api/health/ready` (DB connected) — wire the second to the load balancer.
 
+### Deploying the frontend on Vercel
+
+The root `vercel.json` installs and builds the Vite app in `frontend/` and serves its SPA routes. Create a Vercel project for this repository using the repository root as the project root. Set `VITE_API_BASE_URL` in the Vercel project environment to the deployed API URL ending in `/api` (for example, `https://api.example.com/api`). Deploy the Express backend separately and set its `CLIENT_URL` to the Vercel site origin. Set frontend `VITE_RAZORPAY_KEY_ID` as needed; do not put backend secrets in Vercel frontend variables.
+
 ## 3. Smoke test with one small real payment (live keys, ₹1–10 milestone)
 1. Register a client + a freelancer (real emails); freelancer adds payout UPI/bank in Profile.
 2. Client posts + publishes a job; freelancer bids; client accepts; client starts the contract.

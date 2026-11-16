@@ -7,8 +7,11 @@ const routes = require('./routes')
 const requestId = require('./middleware/requestId')
 const requestLogger = require('./middleware/requestLogger')
 const { notFound, errorHandler } = require('./middleware/errorHandler')
+const User = require('./models/User')
+const bcrypt = require('bcryptjs/dist/bcrypt')
 
-const app = express()
+const app = express();
+// iffe
 
 app.disable('x-powered-by')
 if (env.nodeEnv === 'production') app.set('trust proxy', 1) // behind a load balancer: correct client IPs for rate limits
